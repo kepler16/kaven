@@ -2,11 +2,14 @@
   (:require
    [clojure.java.io :as io])
   (:import
+   org.apache.maven.settings.Server
    org.apache.maven.settings.Settings
    org.apache.maven.settings.io.xpp3.SettingsXpp3Reader))
 
+(set! *warn-on-reflection* true)
+
 (defn- server-credentials
-  [server]
+  [^Server server]
   (let [id (.getId server)
         username (.getUsername server)]
     {id {:id id

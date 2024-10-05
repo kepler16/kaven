@@ -2,9 +2,12 @@
   (:import
    java.io.FileReader
    java.io.Reader
+   org.apache.maven.model.Repository
    org.apache.maven.model.io.xpp3.MavenXpp3Reader))
 
-(defn- repository-to-map [repo]
+(set! *warn-on-reflection* true)
+
+(defn- repository-to-map [^Repository repo]
   {:id (.getId repo)
    :url (.getUrl repo)
    :snapshots-enabled (boolean (some-> repo .getSnapshots .isEnabled))
@@ -14,9 +17,9 @@
   (let [pom-reader (MavenXpp3Reader.)
         reader (if (instance? Reader file-path|reader)
                  file-path|reader
-                 (FileReader. file-path|reader))]
+                 (FileReader. ^String file-path|reader))]
 
-    (with-open [reader reader]
+    (with-open [reader ^Reader reader]
       (let [model (.read pom-reader reader)
             repositories (.getRepositories model)]
         {:group (.getGroupId model)

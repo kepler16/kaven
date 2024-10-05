@@ -11,25 +11,26 @@
   (:import
    java.nio.file.Files
    java.nio.file.attribute.FileAttribute
+   org.eclipse.aether.artifact.Artifact
    org.eclipse.aether.artifact.DefaultArtifact
    org.eclipse.aether.deployment.DeployRequest
    org.eclipse.aether.deployment.DeployResult
    org.eclipse.aether.util.artifact.SubArtifact))
 
+(set! *warn-on-reflection* true)
+
 (defn- make-artifact [{:keys [group artifact extension version path]}]
   (let [artifact (DefaultArtifact. group artifact "" extension version)]
-    (.setPath artifact (.toPath (io/file path)))))
     (.setFile artifact (io/file path))))
 
 (defn- make-sub-artifact [{:keys [parent extension path]}]
   (let [artifact (SubArtifact. parent "" extension)]
-    (.setPath artifact (.toPath (io/file path)))))
     (.setFile artifact (io/file path))))
 
 (defn- deploy-result->map [^DeployResult result]
   (let [artifacts
         (into []
-              (map (fn [artifact]
+              (map (fn [^Artifact artifact]
                      {:group (.getGroupId artifact)
                       :artifact (.getArtifactId artifact)
                       :extension (.getExtension artifact)
@@ -41,7 +42,7 @@
   (let [temp-file (Files/createTempFile "temp-file" ".txt" (into-array FileAttribute []))
         file-path (.toFile temp-file)]
     (spit file-path (slurp reader))
-    file-path))
+    (str file-path)))
 
 (defn deploy [{:keys [pom-path jar-path
                       repositories repository

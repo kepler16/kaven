@@ -5,8 +5,10 @@
    org.eclipse.aether.repository.RemoteRepository$Builder
    org.eclipse.aether.util.repository.AuthenticationBuilder))
 
+(set! *warn-on-reflection* true)
+
 (defn create-authentication
-  ^Authentication [{:keys [username password]}]
+  ^Authentication [{:keys [^String username ^String password]}]
   (-> (AuthenticationBuilder.)
       (.addUsername username)
       (.addPassword password)

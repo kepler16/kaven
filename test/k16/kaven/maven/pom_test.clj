@@ -5,7 +5,7 @@
    [k16.kaven.maven.pom :as maven.pom]))
 
 (deftest pom-read-test
-  (let [pom (maven.pom/read-pom (io/file (io/resource "fixtures/pom.xml")))]
+  (let [pom (maven.pom/read-pom (str (io/file (io/resource "fixtures/pom.xml"))))]
     (is (= {:group "com.kepler16"
             :artifact "kaven"
             :version "0.0.1-SNAPSHOT"
