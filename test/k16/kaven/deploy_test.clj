@@ -75,3 +75,31 @@
                               :extension "pom"
                               :version snapshot-version2-pattern}]}
                 result))))
+
+(deftest deploy-parallel-test
+  (let [results (->> (range 0 20)
+                     (map (fn [i]
+                            (future
+                              (kaven.deploy/deploy
+                               {:jar-path (str (io/file (io/resource "fixtures/lib.jar")))
+                                :version (str "0.0." i "-SNAPSHOT")
+                                :repositories {"test" {:url "http://localhost:7765/releases"
+                                                       :credentials {:username "admin"
+                                                                     :password "secret"}}}
+
+                                :repository "test"}))))
+                     (map deref)
+                     doall)]
+
+    (is (match? (->> (range 0 20)
+                     (map (fn [i]
+                            (let [version-pattern (re-pattern (str "0\\.0\\." i "-(.*)\\.(.*)-(.*)$"))]
+                              {:artifacts [{:group "com.kepler16"
+                                            :artifact "kaven"
+                                            :extension "jar"
+                                            :version version-pattern}
+                                           {:group "com.kepler16"
+                                            :artifact "kaven"
+                                            :extension "pom"
+                                            :version version-pattern}]}))))
+                results))))
