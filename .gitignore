@@ -1,0 +1,13 @@
+.idea
+.vscode
+.DS_Store
+
+.cpcache
+.lsp
+.clj-kondo
+.nrepl-port
+
+deps.local.edn
+
+local
+target

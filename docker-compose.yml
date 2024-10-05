@@ -1,0 +1,7 @@
+services:
+  reposilite:
+    image: ghcr.io/dzikoysk/reposilite:3.5.17
+    ports:
+    - 7765:8080
+    environment:
+    - REPOSILITE_OPTS=--token admin:secret
