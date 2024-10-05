@@ -1,7 +1,8 @@
 (ns build
   (:require
    [clojure.string :as str]
-   [clojure.tools.build.api :as b]))
+   [clojure.tools.build.api :as b]
+   [k16.kaven.deploy :as kaven.deploy]))
 
 (def lib 'com.kepler16/kaven)
 
@@ -40,8 +41,7 @@
    :password (System/getenv "CLOJARS_PASSWORD")})
 
 (defn release [_]
-  (let [deploy (requiring-resolve 'k16.kaven.deploy/deploy)]
-    (deploy
-     {:jar-path jar-file
-      :repository "clojars"
-      :repositories {"clojars" {:credentials clojars-credentials}}})))
+  (kaven.deploy/deploy
+   {:jar-path jar-file
+    :repository "clojars"
+    :repositories {"clojars" {:credentials clojars-credentials}}}))

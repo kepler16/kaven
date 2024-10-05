@@ -2,7 +2,7 @@ default:
     @just --list
 
 build *args:
-    clojure -T:build build {{ args }}
+    clojure -X:build build {{ args }}
 
 release *args:
     clojure -X:build release {{ args }}

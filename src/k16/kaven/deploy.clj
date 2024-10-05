@@ -19,10 +19,12 @@
 (defn- make-artifact [{:keys [group artifact extension version path]}]
   (let [artifact (DefaultArtifact. group artifact "" extension version)]
     (.setPath artifact (.toPath (io/file path)))))
+    (.setFile artifact (io/file path))))
 
 (defn- make-sub-artifact [{:keys [parent extension path]}]
   (let [artifact (SubArtifact. parent "" extension)]
     (.setPath artifact (.toPath (io/file path)))))
+    (.setFile artifact (io/file path))))
 
 (defn- deploy-result->map [^DeployResult result]
   (let [artifacts
@@ -92,9 +94,11 @@
         (.addArtifact pom-artifact)
         (.setRepository repository))
 
-    (with-open [system (maven.system/create-repository-system)
-                session (maven.session/create-system-session system)]
-      (let [result (.deploy system session deploy-request)]
-        (when (not pom-file-exists?)
-          (io/delete-file pom-path))
-        (deploy-result->map result)))))
+    (let [system (maven.system/create-repository-system)
+          session (maven.session/create-system-session system)
+          result (.deploy system session deploy-request)]
+
+      (when (not pom-file-exists?)
+        (io/delete-file pom-path))
+
+      (deploy-result->map result))))

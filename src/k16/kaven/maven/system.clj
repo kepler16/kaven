@@ -1,41 +1,20 @@
 (ns k16.kaven.maven.system
   (:import
-   ; [org.eclipse.aether.generator.gnupg GnupgSignatureArtifactGeneratorFactory]
-   ; [org.eclipse.aether.generator.gnupg.loaders GpgAgentPasswordLoader GpgConfLoader GpgEnvLoader]
-   ; [org.eclipse.aether.spi.artifact.decorator ArtifactDecorator ArtifactDecoratorFactory]
-   [org.eclipse.aether.supplier RepositorySystemSupplier]
-   ; [org.eclipse.aether.transport.jdk JdkTransporterFactory]
-   ; [org.eclipse.aether.transport.jetty JettyTransporterFactory]
-   )
-  (:require [clojure.java.io :as io]))
+   org.apache.maven.repository.internal.MavenRepositorySystemUtils
+   org.eclipse.aether.RepositorySystem
+   org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
+   org.eclipse.aether.spi.connector.RepositoryConnectorFactory
+   org.eclipse.aether.spi.connector.transport.TransporterFactory
+   org.eclipse.aether.transport.file.FileTransporterFactory
+   org.eclipse.aether.transport.http.HttpTransporterFactory))
 
-#_(defn- create-gnupg-signature-artifact-generator-factory-loaders []
-  ;; order matters
-  (doto (java.util.LinkedHashMap.)
-    (.put GpgEnvLoader/NAME (GpgEnvLoader.))
-    (.put GpgConfLoader/NAME (GpgConfLoader.))
-    (.put GpgAgentPasswordLoader/NAME (GpgAgentPasswordLoader.))))
+(set! *warn-on-reflection* true)
 
-(defn create-repository-system []
-  (let [supplier
-        (proxy [RepositorySystemSupplier] []
- #_         (createArtifactGeneratorFactories []
-            (let [result (proxy-super createArtifactGeneratorFactories)]
-              #_(.put result
-                      GnupgSignatureArtifactGeneratorFactory/NAME
-                      (GnupgSignatureArtifactGeneratorFactory.
-                       (.getArtifactPredicateFactory this)
-                       (create-gnupg-signature-artifact-generator-factory-loaders)))
+(defn create-repository-system ^RepositorySystem []
+  (let [locator (MavenRepositorySystemUtils/newServiceLocator)]
 
-              result))
+    (.addService locator RepositoryConnectorFactory BasicRepositoryConnectorFactory)
+    (.addService locator TransporterFactory FileTransporterFactory)
+    (.addService locator TransporterFactory HttpTransporterFactory)
 
-   #_       (createArtifactDecoratorFactories []
-            (let [result (proxy-super createArtifactDecoratorFactories)]
-
-              result))
-
-     #_     (createTransporterFactories []
-            (let [result (proxy-super createTransporterFactories)]
-              result)))]
-
-    (.get supplier)))
+    (.getService locator RepositorySystem)))

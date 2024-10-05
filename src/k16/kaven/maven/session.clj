@@ -1,10 +1,11 @@
 (ns k16.kaven.maven.session
   (:import
+   org.apache.maven.repository.internal.MavenRepositorySystemUtils
+   org.eclipse.aether.repository.LocalRepository
    org.eclipse.aether.RepositorySystem
-   org.eclipse.aether.RepositorySystemSession
-   )
-  (:require
-   [clojure.java.io :as io]))
+   org.eclipse.aether.RepositorySystemSession))
+
+(set! *warn-on-reflection* true)
 
 (defn create-system-session
   (^RepositorySystemSession [^RepositorySystem system]
@@ -14,16 +15,10 @@
    (let [local-repo-path (or (:local-repo-path opts)
                              (str (System/getProperty "user.home")
                                   "/.m2/repository"))
-         session-builder (.createSessionBuilder system)]
 
-     (-> session-builder
-         (.withLocalRepositoryBaseDirectories [(.toPath (io/file local-repo-path))])
+         local-repo (LocalRepository. ^String local-repo-path)
 
-         #_(.setConfigProperty "aether.generator.gpg.enabled" (.toString Boolean/FALSE))
-         #_(.setConfigProperty "aether.generator.gpg.keyFilePath"
-                               (-> (Paths/get "src" (into-array ["main" "resources" "alice.key"]))
-                                   (.toAbsolutePath)
-                                   (.toString)))
-         #_(.setConfigProperty "aether.syncContext.named.factory" "noop"))
+         session (MavenRepositorySystemUtils/newSession)]
 
-     (.build session-builder))))
+     (.setLocalRepositoryManager session (.newLocalRepositoryManager system session local-repo))
+     session)))

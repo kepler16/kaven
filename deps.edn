@@ -1,22 +1,17 @@
-{:deps {org.apache.maven.resolver/maven-resolver-api {:mvn/version "2.0.1"}
-        org.apache.maven.resolver/maven-resolver-spi {:mvn/version "2.0.1"}
+{:deps {org.apache.maven.resolver/maven-resolver-api {:mvn/version "1.8.2"}
+        org.apache.maven.resolver/maven-resolver-spi {:mvn/version "1.8.2"}
 
-        org.apache.maven.resolver/maven-resolver-util {:mvn/version "2.0.1"}
-        org.apache.maven.resolver/maven-resolver-impl {:mvn/version "2.0.1"}
+        org.apache.maven.resolver/maven-resolver-util {:mvn/version "1.8.2"}
+        org.apache.maven.resolver/maven-resolver-impl {:mvn/version "1.8.2"}
 
-        org.apache.maven.resolver/maven-resolver-connector-basic {:mvn/version "2.0.1"}
-        org.apache.maven.resolver/maven-resolver-transport-file {:mvn/version "2.0.1"}
-        org.apache.maven.resolver/maven-resolver-transport-apache {:mvn/version "2.0.1"}
-        org.apache.maven.resolver/maven-resolver-transport-jdk {:mvn/version "2.0.1"}
-        org.apache.maven.resolver/maven-resolver-transport-jetty {:mvn/version "2.0.1"}
+        org.apache.maven.resolver/maven-resolver-connector-basic {:mvn/version "1.8.2"}
+        org.apache.maven.resolver/maven-resolver-transport-file {:mvn/version "1.8.2"}
+        org.apache.maven.resolver/maven-resolver-transport-http {:mvn/version "1.8.2"}
 
-        org.apache.maven.resolver/maven-resolver-generator-gnupg {:mvn/version "2.0.1"}
-        org.apache.maven.resolver/maven-resolver-supplier-mvn4 {:mvn/version "2.0.1"}
-
-        org.apache.maven/maven-resolver-provider {:mvn/version "4.0.0-beta-3"}
-        org.apache.maven/maven-model-builder {:mvn/version "4.0.0-beta-3"}
-        org.apache.maven/maven-settings {:mvn/version "4.0.0-beta-3"}
-        org.apache.maven/maven-model {:mvn/version "4.0.0-beta-3"}
+        org.apache.maven/maven-resolver-provider {:mvn/version "3.8.8"}
+        org.apache.maven/maven-model-builder {:mvn/version "3.8.8"}
+        org.apache.maven/maven-settings {:mvn/version "3.8.8"}
+        org.apache.maven/maven-model {:mvn/version "3.8.8"}
 
         meta-merge/meta-merge {:mvn/version "1.0.0"}}
 
