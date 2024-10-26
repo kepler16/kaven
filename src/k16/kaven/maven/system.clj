@@ -1,4 +1,5 @@
 (ns k16.kaven.maven.system
+  {:no-doc true}
   (:import
    org.apache.maven.repository.internal.MavenRepositorySystemUtils
    org.eclipse.aether.RepositorySystem

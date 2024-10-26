@@ -1,4 +1,5 @@
 (ns k16.kaven.maven.pom
+  {:no-doc true}
   (:import
    java.io.FileReader
    java.io.Reader

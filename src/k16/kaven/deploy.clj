@@ -44,9 +44,99 @@
     (spit file-path (slurp reader))
     (str file-path)))
 
-(defn deploy [{:keys [pom-path jar-path
-                      repositories repository
-                      lib version]}]
+(defn deploy
+  "Deploy a jar found at `:jar-path` to a maven `:repository`.
+
+  Accepts the following opts:
+
+  + `:jar-path` - A path on disk to the jar file to be deployed. Required.
+  + `:pom-path` - An optional path on disk to the POM definition of the maven
+  module. This is extracted from the jar at `:jar-path` if not provided.
+  + `:repository` - Either a repository id as a string or a full repository
+  configuration map. Required.
+  + `:repositories` - A map of repository id (string) to a repository
+  configuration map.
+  + `:lib` - An optional fully-qualified symbol describing the lib given in the
+  form <group-id>/<artifact-id>. This is inferred from the POM file if not
+  provided.
+  + `version` - An option artifact version. This is inferred from the POM file
+  if not provided.
+
+  Requires, at minimum, a `:jar-path` and a `:repository` to be set.
+
+  ### POM File Discovery
+
+  If no `:pom-path` is configured, or the `:pom-path` does not point to a valid
+  file on disk, then this fn will search inside the jar at `:jar-path` for a POM
+  file. This works by using the first result returned by the following search:
+
+  1) If `:pom-path` is provided but is not a file on disk then we try find a
+  resource within the jar at this path.
+  2) If `:lib` is provided then we try find a POM file at
+  'zip://<jar-path>/META-INF/maven/<group-id>/<artifact-id>/pom.xml'
+  3) The jar resources are scanned for the first pom file in
+  'zip://<jar-path>/META-INF/maven/.*/pom.xml'
+
+  ### Repository Configuration
+
+  A set of repository configurations are constructed by analysing the POM file
+  and extracting the <repositories> section.
+
+  Credentials from `~/.m2/settings.xml` are then loaded and merged with
+  repositories found in the POM file. This is done by referencing the
+  repositories `:id` field.
+
+  Repositories can configured/overriden through the `:repositories` opt.
+  Anything specified here will be merged with automatically discovered
+  repositories.
+
+  The target repository to deploy to is specified by setting the `:repository`
+  opt to the desired repository ID or by providing the full repository config.
+
+  ### Examples
+
+  If you have a `username/password` for clojars configured in `settings.xml`
+  then you only need to specify the repository id.
+  ```clojure
+  (deploy {:jar-path \"target/lib.jar\"
+           :repository \"clojars\"})
+  ```
+
+  Explicitly specifying the repository credentials
+  ```clojure
+  (deploy {:jar-path \"target/lib.jar\"
+           :repository \"clojars\"
+           ;; The clojars repository URL is typically always available
+           :repositories {\"clojars\" {:credentials {:username \"username\"
+                                                     :password \"password\"}}}})
+  ```
+
+  Deploy to a github repository, specifying the repository config directly.
+  ```clojure
+  (deploy {:jar-path \"target/lib.jar\"
+           :repository {:id \"github\"
+                        :url \"https://maven.pkg.github.com/<github-org>/<github-repo>\"
+                        :credentials {:username (System/getenv \"GITHUB_USERNAME\")
+                                      :password (System/getenv \"GITHUB_TOKEN\")}}})
+  ```
+
+  Override the `:lib` and `:version` used.
+  ```clojure
+  (deploy {:jar-path \"target/lib.jar\"
+           :repository \"clojars\"
+           :lib 'com.kepler16/kaven-2
+           :version \"0.0.1-SNAPSHOT\"})
+  ```
+
+  Specify the path to the pom file explicitly
+  ```clojure
+  (deploy {:jar-path \"target/lib.jar\"
+           :pom-path \"target/META-INF/maven/com.kepler16/kaven/pom.xml\"
+           :repository \"clojars\"})
+  ```"
+  [{:keys [jar-path pom-path
+           repository repositories
+           lib version]}]
   (let [settings (maven.settings/read-settings)
 
         group (when lib (namespace lib))
@@ -67,10 +157,15 @@
         repositories (meta-merge/meta-merge (:repositories pom)
                                             repositories)
 
-        repositories (maven.repository/create-repositories
-                      settings repositories)
+        repository (if (string? repository)
+                     (get repositories repository)
+                     (if (:id repository)
+                       (meta-merge/meta-merge (get repositories (:id repository))
+                                              repository)
+                       repository))
 
-        repository (get repositories repository)
+        repository (maven.repository/create-repository
+                    settings repository)
 
         group (or group (:group pom))
         artifact (or artifact (:artifact pom))

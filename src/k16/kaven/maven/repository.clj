@@ -1,4 +1,5 @@
 (ns k16.kaven.maven.repository
+  {:no-doc true}
   (:import
    org.eclipse.aether.repository.Authentication
    org.eclipse.aether.repository.RemoteRepository
@@ -28,9 +29,3 @@
        repo (create-authentication credentials)))
 
     (.build repo)))
-
-(defn create-repositories [settings repositories]
-  (into {}
-        (map (fn [[id repository]]
-               [id (create-repository settings repository)]))
-        repositories))

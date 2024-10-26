@@ -1,4 +1,5 @@
 (ns k16.kaven.maven.settings
+  {:no-doc true}
   (:require
    [clojure.java.io :as io])
   (:import
